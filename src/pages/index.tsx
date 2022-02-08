@@ -1,18 +1,18 @@
 import React, { FC } from 'react';
+import { ProductList } from '../components';
 import { initializeGraphQL, graphQLRequest } from '../graphql';
 
 const Home: FC<any> = ({ products }) => {
-  console.log(products);
-
   return (
     <div>
       <h1 className="text-2xl">hello</h1>
+      <ProductList products={products} />
     </div>
   );
 };
 
 export async function getStaticProps() {
-  const GET_PRODUCTS_ON_HOMEPAGE = `query getInCollection($first: Int!) {
+  const query = `query getInCollection($first: Int!) {
     collection(handle: "frontpage") {
       title
       products(first: $first) {
@@ -21,6 +21,11 @@ export async function getStaticProps() {
             id
             title
             handle
+            priceRange {
+              minVariantPrice {
+                amount
+              }
+            }
             images(first:5){
               edges{
                 node{
@@ -42,7 +47,7 @@ export async function getStaticProps() {
   const client = initializeGraphQL();
   let res: any;
   try {
-    res = await graphQLRequest(client, GET_PRODUCTS_ON_HOMEPAGE, queryOptions);
+    res = await graphQLRequest(client, query, queryOptions);
   } catch (err) {
     console.log((err as Error).message);
   }
